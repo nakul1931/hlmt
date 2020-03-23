@@ -22,13 +22,29 @@ app.post("/api/users/register", async (req, res) => {
   console.log(req.body);
   await con.query(
     "INSERT INTO users(phone, name, password, DOB, email, s3_link) values (?, ?, ?, ?, ?, ?)",
-    [req.body.phone, req.body.name, req.body.password, req.body.DOB, req.body.email, req.body.s3_link],
+    [
+      req.body.phone,
+      req.body.name,
+      req.body.password,
+      req.body.DOB,
+      req.body.email,
+      req.body.s3_link
+    ],
     (err, result) => {
-      if (err) console.log("Error:", err);
+      if (err) {
+        console.log("Error:", err);
+        return false;
+      }
       console.log("Result", result);
+      return true;
     }
   );
   res.send("You request is recieved");
+});
+
+app.post("/api/users/login", async (req, res) => {
+  console.log(req.body);
+
 });
 
 const port = process.env.PORT || 3000;
