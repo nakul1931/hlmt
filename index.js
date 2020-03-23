@@ -18,15 +18,6 @@ con.connect(err => {
 
 app.use(express.json());
 
-function guidGenerator() {
-  var S4 = function() {
-    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-  };
-  var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-  var uniqid = randLetter + Date.now();
-  return S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + uniqid;
-}
-
 app.post("/api/users/register", (req, res) => {
   console.log(req.body);
   con.query(
@@ -43,9 +34,11 @@ app.post("/api/users/register", (req, res) => {
   );
 });
 
-app.post("/api/users/login", (req, res) => {
+app.post("/api/users/login", async (req, res) => {
   console.log(req.body);
-  con.query(
+
+  var r;
+  await con.query(
     "SELECT * FROM users WHERE email=? AND password=?",
     [req.body.email, req.body.password],
     (err, result) => {
@@ -53,13 +46,36 @@ app.post("/api/users/login", (req, res) => {
         console.log("Error:", err);
         return res.send({ status: "false" });
       } else {
-        console.log("Result", result);
         if (result.length === 0) return res.send({ status: "false" });
         else {
-          var r = result[0];
+          r = result[0];
+          delete r.password;
+          delete r.DOB;
+          delete r.registered_on;
+          delete r.email;
+          delete r.address;
           r.status = "true";
-          return res.send(r);
         }
+      }
+    }
+  );
+  await con.query("SELECT COUNT(*) FROM helmets", (err, result) => {
+    if (err) {
+      console.log("Error:", err);
+      return res.send({ status: "false" });
+    } else {
+      r.total_helmets = result[0]["COUNT(*)"];
+    }
+  });
+  await con.query(
+    "SELECT COUNT(*) FROM helmets WHERE availability=1",
+    (err, result) => {
+      if (err) {
+        console.log("Error:", err);
+        return res.send({ status: "false" });
+      } else {
+        r.available_helmets = result[0]["COUNT(*)"];
+        return res.send(r);
       }
     }
   );
@@ -117,15 +133,11 @@ app.post("/api/managers/login", (req, res) => {
 
 app.post("/api/banks/create", (req, res) => {
   console.log(req.body);
+  var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  var uniqid = randLetter + Date.now();
   con.query(
-    "INSERT INTO banks(bank_id, location, manager) VALUES(?, ?, ?, ?, ?)",
-    [
-      guidGenerator(),
-      req.body.location,
-      req.body.total_helmets,
-      req.body.available_helmets,
-      req.body.manager
-    ],
+    "INSERT INTO banks(bank_id, location, manager) VALUES(?, ?, ?)",
+    [uniqid, req.body.location, req.body.manager],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -133,7 +145,6 @@ app.post("/api/banks/create", (req, res) => {
       } else return res.send({ status: "true" });
     }
   );
-  return res.send(guidGenerator());
 });
 
 app.post("/api/banks/edit", (req, res) => {
@@ -157,13 +168,19 @@ app.post("/api/banks/edit", (req, res) => {
   return res.send(q + a);
 });
 
-// app.post("/api/helmets/add", (req, res) => {
-//   console.log(req.body);
-//   con.query(
-//     "INSERT INTO helmets VALUES"
-//   )
-
-// })
+app.post("/api/helmets/add", (req, res) => {
+  console.log(req.body);
+  con.query(
+    "INSERT INTO helmets(helmet_no, bank) VALUES(?, ?)",
+    [req.body.helmet_no, req.body.bank],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.send({ status: "false" });
+      } else return res.send({ status: "true" });
+    }
+  );
+});
 
 const port = process.env.PORT || 3000;
 app.listen(port, "0.0.0.0", () => console.log("Listening on port", port));
