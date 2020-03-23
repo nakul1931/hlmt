@@ -46,7 +46,7 @@ app.post("/api/users/login", async (req, res) => {
       } else {
         console.log("Result", result);
         if (result.length === 0) return res.status(400).send(false);
-        else return res.status(200).send(true);
+        else return res.status(200).send({status:"true"});
       }
     }
   );
