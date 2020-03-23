@@ -21,14 +21,12 @@ app.use(express.json());
 app.post("/api/users/register", async (req, res) => {
   console.log(req.body);
   await con.query(
-    "INSERT INTO users(phone, name, password, DOB, email, s3_link) values (?, ?, ?, ?, ?, ?)",
+    "INSERT INTO users(phone, name, password, email) values (?, ?, ?, ?)",
     [
       req.body.phone,
       req.body.name,
       req.body.password,
-      req.body.DOB,
-      req.body.email,
-      req.body.s3_link
+      req.body.email
     ],
     (err, result) => {
       if (err) {
