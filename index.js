@@ -12,7 +12,7 @@ const con = mysql.createConnection({
 });
 
 con.connect(err => {
-  if (err) throw err;
+  if (err) console.log("Error:", err);
   console.log("Connected!");
 });
 
@@ -20,7 +20,7 @@ app.use(express.json());
 
 app.post("/api/users/register", async (req, res) => {
   console.log(req.body);
-  await con.query(
+  con.query(
     "INSERT INTO users(phone, name, password, email) values (?, ?, ?, ?)",
     [
       req.body.phone,
@@ -31,10 +31,10 @@ app.post("/api/users/register", async (req, res) => {
     (err, result) => {
       if (err) {
         console.log("Error:", err);
-        return false;
+        return res.status(400).send(false);
       }
       console.log("Result", result);
-      return true;
+      return res.status(200).send(true);
     }
   );
   res.send("You request is recieved");
@@ -42,7 +42,19 @@ app.post("/api/users/register", async (req, res) => {
 
 app.post("/api/users/login", async (req, res) => {
   console.log(req.body);
-
+  con.query(
+    "SELECT * FROM users WHERE email=? AND password=?",
+    [req.body.email, req.body.password],
+    (err, result) => {
+      if (err) {
+        console.log("Error:", err);
+        return res.status(400).send(false);
+      }
+      console.log("Result", result);
+      if (result.length === 0) return res.status(400).send(false);
+      else return res.status(200).send(true);
+    }
+  )
 });
 
 const port = process.env.PORT || 3000;
