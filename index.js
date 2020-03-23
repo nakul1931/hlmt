@@ -18,6 +18,9 @@ con.connect(err => {
 
 app.use(express.json());
 
+// -----------
+// || Users ||
+
 app.post("/api/users/register", async (req, res) => {
   console.log(req.body);
   con.query(
@@ -26,10 +29,10 @@ app.post("/api/users/register", async (req, res) => {
     (err, result) => {
       if (err) {
         console.log("Error:", err);
-        return res.status(400).send(false);
+        return res.status(200).send({status:"false"});
       }
       console.log("Result", result);
-      return res.status(200).send(true);
+      return res.status(200).send({status:"true"});
     }
   );
 });
@@ -42,11 +45,11 @@ app.post("/api/users/login", async (req, res) => {
     (err, result) => {
       if (err) {
         console.log("Error:", err);
-        return res.status(400).send(false);
+        return res.status(200).send({status:"false"});
       } else {
         console.log("Result", result);
-        if (result.length === 0) return res.status(400).send(false);
-        else return res.status(200).send({status:"true"});
+        if (result.length === 0) return res.status(200).send({status:"false"});
+        else return res.status(200).send({ status: "true" });
       }
     }
   );
@@ -60,11 +63,11 @@ app.post("/api/users/guest", async (req, res) => {
     (err, result) => {
       if (err) {
         console.log("Error:", err);
-        if (err.code === "ER_DUP_ENTRY") return res.status(200).send(true);
-        return res.status(400).send(false);
+        if (err.code === "ER_DUP_ENTRY") return res.status(200).send({status:"true"});
+        return res.status(200).send({status:"false"});
       }
       console.log("Result", result);
-      return res.status(200).send(true);
+      return res.status(200).send({status:"true"});
     }
   );
 });
@@ -77,10 +80,10 @@ app.post("/api/managers/register", async (req, res) => {
     (err, result) => {
       if (err) {
         console.log("Error:", err);
-        return res.status(400).send(false);
+        return res.status(200).send({status:"false"});
       }
       console.log("Result", result);
-      return res.status(200).send(true);
+      return res.status(200).send({status:"true"});
     }
   );
 });
@@ -93,13 +96,22 @@ app.post("/api/managers/login", async (req, res) => {
     (err, result) => {
       if (err) {
         console.log("Error:", err);
-        return res.status(400).send(false);
+        return res.status(200).send({status:"false"});
       }
       console.log("Result", result);
-      if (result.length === 0) return res.status(400).send(false);
-      else return res.status(200).send({status:"true"});
+      if (result.length === 0) return res.status(200).send({status:"false"});
+      else return res.status(200).send({ status: "true" });
     }
   );
+});
+
+app.get("/api/banks/create", async (req, res) => {
+  // con.query(
+  //   "INSERT INTO banks"
+  // )
+  var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  var uniqid = randLetter + Date.now();
+  console.log(uniqid);
 });
 
 const port = process.env.PORT || 3000;
