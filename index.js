@@ -32,7 +32,6 @@ app.post("/api/users/register", async (req, res) => {
       return res.status(200).send(true);
     }
   );
-  res.send("You request is recieved");
 });
 
 app.post("/api/users/login", async (req, res) => {
