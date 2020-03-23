@@ -84,7 +84,6 @@ app.post("/api/managers/register", async (req, res) => {
       return res.status(200).send(true);
     }
   );
-  res.send("You request is recieved");
 });
 
 app.post("/api/managers/login", async (req, res) => {
